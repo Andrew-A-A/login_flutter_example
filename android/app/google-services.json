@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "272581182701",
+    "project_id": "loginexample-66765",
+    "storage_bucket": "loginexample-66765.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:272581182701:android:fe9fb6ea1943f62c18b8e4",
+        "android_client_info": {
+          "package_name": "com.example.andrewsaba.login_task"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANET_urnN76sGStTFWl8vkq3uXlbLz6WY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:272581182701:android:b0ffc4741583297018b8e4",
+        "android_client_info": {
+          "package_name": "com.example.login_task"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANET_urnN76sGStTFWl8vkq3uXlbLz6WY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
