@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_task/home.dart';
 import 'package:login_task/utils/firebase_auth.dart';
@@ -8,12 +9,14 @@ import 'cubit/app_states.dart';
 
 class LoginApp extends StatelessWidget {
     LoginApp({super.key});
+    // Text fields controllers
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
   @override
   Widget build(BuildContext context){
+    //
     AppCubit cubit=BlocProvider.of<AppCubit>(context);
-    var loginFormKey = GlobalKey<FormState>();
+    final loginFormKey = GlobalKey<FormState>();
     return BlocBuilder<AppCubit,AppStates>(
         builder: (BuildContext context,dynamic state){
           return  Scaffold(
@@ -25,16 +28,22 @@ class LoginApp extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   //First row contains word 'Login' only
-                   const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-
                       children:[
-                        Text("Let's sign you in.", style:
+                        GestureDetector(
+                          onTap: (){
+                            SystemNavigator.pop();
+                            },
+                            child: Image.asset("assets/images/back.png",width: 50,)
+                        ),
+                        const SizedBox(height: 20),
+                        const Text("Let's sign you in.", style:
                         TextStyle(fontWeight: FontWeight.bold,
                             fontSize: 45,
                             fontFamily: 'Roboto')
                         ),
-                        Text("Welcome Back.\nYou have been missed!",
+                        const Text("Welcome Back.\nYou have been missed!",
                             style: TextStyle(fontWeight: FontWeight.w400,
                                 fontSize: 35,
                                 fontFamily: 'Roboto') ),
@@ -47,7 +56,7 @@ class LoginApp extends StatelessWidget {
                       children:[
                         //Email text box
                         TextFormField(
-                          autovalidateMode:(cubit.isLoggedIn)?AutovalidateMode.disabled:AutovalidateMode.onUserInteraction,
+                          autovalidateMode:AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.emailAddress,
                           controller: emailController,
                           textInputAction: TextInputAction.next,
@@ -61,7 +70,7 @@ class LoginApp extends StatelessWidget {
                         const SizedBox(height: 20),
                         //Password text box
                         TextFormField(
-                          autovalidateMode:(cubit.isLoggedIn)?AutovalidateMode.disabled:AutovalidateMode.onUserInteraction,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.visiblePassword,
                           controller: passwordController,
                           obscureText: !cubit.passwordVisible,
@@ -108,10 +117,12 @@ class LoginApp extends StatelessWidget {
                   //Last row contains signup text and button
                   Row(
                       children:[
-                        const Text("Don't have an account?", style: TextStyle(fontFamily: 'Roboto',color: Colors.grey)),
+                        const Text("Don't have an account?",
+                            style: TextStyle(fontFamily: 'Roboto',
+                                color: Colors.grey)
+                        ),
                         TextButton(onPressed: (){
-                        //  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=> Signup()));
-                          //cubit.loginSucceeded();
+                          //Will be used to navigate to the register form
                         }, child: const Text("Register"))
                       ]
                   )
@@ -124,15 +135,21 @@ class LoginApp extends StatelessWidget {
 
   }
 
-  void onLoginButtonPress(GlobalKey<FormState> loginFormKey, BuildContext context, AppCubit cubit) {
-    if ( loginFormKey.currentState!.validate()) {
+
+  //Call Firebase auth after making sure that the data entered by user is valid
+  void onLoginButtonPress(GlobalKey<FormState> loginFormKey,
+      BuildContext context, AppCubit cubit) {
+    if ( loginFormKey.currentState!.validate()) { //call form validation
       FirebaseAuthentication.signInUsingEmailPassword(
         email: emailController.text,
         password:passwordController.text, context: context
       ).then((user){
+        // After sending auth request to Firebase,
+        // check if there is a user exists
         if(user!=null) {
           cubit.currentUser = user;
           if (context.mounted) {
+            //If user found, navigate to home screen
             Navigator.push(
               context,
               MaterialPageRoute(

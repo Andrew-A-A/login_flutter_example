@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class FirebaseAuthentication {
   static Future<User?> signInUsingEmailPassword({
@@ -17,9 +17,26 @@ class FirebaseAuthentication {
       );
       user = userCredential.user;
     } on FirebaseAuthException catch (e) {
-        //TODO: handle firebase authentication exceptions
+      if(e.code=="invalid-credential"){
+        if(context.mounted) {
+          showErrorSnackBar(context,"Please check email and/or password");
+        }
+      }
+      else{
+        if(context.mounted) {
+          showErrorSnackBar(context, "Please check internet connection");
+        }
+      }
     }
     return user;
+  }
+  static void showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
 }
