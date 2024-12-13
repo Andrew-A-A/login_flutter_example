@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cubit/app_cubit.dart';
-import 'firebase_options.dart';
+import 'utils/firebase_options.dart';
 import 'login.dart';
 
 void main() async {
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
               useMaterial3: true,
             ),
-            home:const LoginApp()
+            home: LoginApp()
         )
     );
   }

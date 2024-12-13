@@ -1,12 +1,15 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:login_task/home.dart';
+import 'package:login_task/utils/firebase_auth.dart';
+import 'package:login_task/utils/form_validator.dart';
 import 'cubit/app_cubit.dart';
 import 'cubit/app_states.dart';
 
 class LoginApp extends StatelessWidget {
-    const LoginApp({super.key});
-
+    LoginApp({super.key});
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
   @override
   Widget build(BuildContext context){
     AppCubit cubit=BlocProvider.of<AppCubit>(context);
@@ -37,21 +40,14 @@ class LoginApp extends StatelessWidget {
                         child: TextFormField(
                           autovalidateMode:(cubit.isLoggedIn)?AutovalidateMode.disabled:AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.emailAddress,
-                          controller: cubit.emailController,
+                          controller: emailController,
                           textInputAction: TextInputAction.next,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
                               labelText: "Email",
                               prefixIcon: Icon(Icons.mail_outline_rounded)
                           ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Email Must Not Be Empty";
-                            }
-                           // cubit.wrongEmail(email: value);
-                            return cubit.emailcheck;
-                            //  return null;
-                          },
+                          validator: (value) =>Validator.validateEmail(email: value),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -61,7 +57,7 @@ class LoginApp extends StatelessWidget {
                         child: TextFormField(
                           autovalidateMode:(cubit.isLoggedIn)?AutovalidateMode.disabled:AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.visiblePassword,
-                          controller: cubit.passwordController,
+                          controller: passwordController,
                           obscureText: !cubit.passwordVisible,
                           enableSuggestions: false,
                           autocorrect: false,
@@ -78,16 +74,7 @@ class LoginApp extends StatelessWidget {
                               onPressed: cubit.togglePasswordVisibility
                             ),
                           ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Password Must Not Be Empty";
-                            }
-                            else if(cubit.emailcheck==null) {
-                              //cubit.wrongPassword(password: value);
-                            }
-                            return cubit.passwordcheck;
-
-                          },
+                          validator: (value)=> Validator.isPasswordValid(password: value),
                         ),
                       ),
                     ],
@@ -98,14 +85,21 @@ class LoginApp extends StatelessWidget {
                 ElevatedButton(
                     onPressed: () {
                       if ( loginFormKey.currentState!.validate()) {
-                        AppCubit.signInUsingEmailPassword(
-                          email: cubit.emailController.text,
-                          password:cubit.passwordController.text, context: context ,);
-                        //cubit.loginSucceeded();
-                       // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>  const Home()));
-                        if (kDebugMode) {
-                          print("FOUND!!");
-                        }
+                        FirebaseAuthentication.signInUsingEmailPassword(
+                          email: emailController.text,
+                          password:passwordController.text, context: context
+                        ).then((user){
+                          if(user!=null) {
+                            cubit.currentUser = user;
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()),
+                              );
+                            }
+                          }
+                        });
                       }
                       else {
                         null;
