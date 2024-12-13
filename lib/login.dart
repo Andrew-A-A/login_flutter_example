@@ -18,26 +18,35 @@ class LoginApp extends StatelessWidget {
         builder: (BuildContext context,dynamic state){
           return  Scaffold(
             resizeToAvoidBottomInset: false,
-            body: Column(
-              children: [
-                Image.asset('assets/images/login.jpg',scale: 6,alignment: Alignment.topCenter,fit: BoxFit.contain ),
-                //First row contains word 'Login' only
-                const Row(
-                    children:[
-                      Padding(
-                        padding: EdgeInsets.only(left: 20,bottom: 15 , top: 15),
-                        child: Text("Login", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 30,fontFamily: 'Roboto') ),
-                      ),
-                    ]),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20,vertical:20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //First row contains word 'Login' only
+                   const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
-                Form(
-                  key:loginFormKey,
-                  child: Column(
-                    children:[
-                      //Email text box
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20,right: 20),
-                        child: TextFormField(
+                      children:[
+                        Text("Let's sign you in.", style:
+                        TextStyle(fontWeight: FontWeight.bold,
+                            fontSize: 45,
+                            fontFamily: 'Roboto')
+                        ),
+                        Text("Welcome Back.\nYou have been missed!",
+                            style: TextStyle(fontWeight: FontWeight.w400,
+                                fontSize: 35,
+                                fontFamily: 'Roboto') ),
+                      ]),
+                  const SizedBox(height: 40),
+
+                  Form(
+                    key:loginFormKey,
+                    child: Column(
+                      children:[
+                        //Email text box
+                        TextFormField(
                           autovalidateMode:(cubit.isLoggedIn)?AutovalidateMode.disabled:AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.emailAddress,
                           controller: emailController,
@@ -49,12 +58,9 @@ class LoginApp extends StatelessWidget {
                           ),
                           validator: (value) =>Validator.validateEmail(email: value),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      //Password text box
-                      Padding(
-                        padding:  const EdgeInsets.only(left: 20,right: 20,bottom: 20),
-                        child: TextFormField(
+                        const SizedBox(height: 20),
+                        //Password text box
+                        TextFormField(
                           autovalidateMode:(cubit.isLoggedIn)?AutovalidateMode.disabled:AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.visiblePassword,
                           controller: passwordController,
@@ -76,63 +82,65 @@ class LoginApp extends StatelessWidget {
                           ),
                           validator: (value)=> Validator.isPasswordValid(password: value),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
-                //Login button
-                ElevatedButton(
-                    onPressed: () {
-                      if ( loginFormKey.currentState!.validate()) {
-                        FirebaseAuthentication.signInUsingEmailPassword(
-                          email: emailController.text,
-                          password:passwordController.text, context: context
-                        ).then((user){
-                          if(user!=null) {
-                            cubit.currentUser = user;
-                            if (context.mounted) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomeScreen()),
-                              );
-                            }
-                          }
-                        });
-                      }
-                      else {
-                        null;
-                      }
-                    },
-                    style: TextButton.styleFrom(
+                  const SizedBox(height: 25),
+                  //Login button
+                  SizedBox(
+                    width: double.infinity, // This ensures the button fills the available width
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        onLoginButtonPress(loginFormKey, context, cubit);
+                      },
+                      style: TextButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.blueAccent,
-                        padding: const EdgeInsets.symmetric(horizontal:170,vertical: 15),
-                        disabledBackgroundColor: Colors.grey
-                    ),
-                    child: const Text("Login")
-                ),
-                const SizedBox(height: 20),
-
-                //Last row contains signup text and button
-                Row(
-                    children:[
-                      const Padding(
-                        padding: EdgeInsets.only(left: 30 ),
-                        child: Text("New to the app?", style: TextStyle(fontFamily: 'Roboto',color: Colors.grey)),
+                        disabledBackgroundColor: Colors.grey,
                       ),
-                      TextButton(onPressed: (){
-                      //  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=> Signup()));
-                        //cubit.loginSucceeded();
-                      }, child: const Text("Register"))
-                    ]
-                )
-              ],
+                      child: const Text("Sign in"),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  //Last row contains signup text and button
+                  Row(
+                      children:[
+                        const Text("Don't have an account?", style: TextStyle(fontFamily: 'Roboto',color: Colors.grey)),
+                        TextButton(onPressed: (){
+                        //  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=> Signup()));
+                          //cubit.loginSucceeded();
+                        }, child: const Text("Register"))
+                      ]
+                  )
+                ],
+              ),
             ),
           );
         }
     );
 
+  }
+
+  void onLoginButtonPress(GlobalKey<FormState> loginFormKey, BuildContext context, AppCubit cubit) {
+    if ( loginFormKey.currentState!.validate()) {
+      FirebaseAuthentication.signInUsingEmailPassword(
+        email: emailController.text,
+        password:passwordController.text, context: context
+      ).then((user){
+        if(user!=null) {
+          cubit.currentUser = user;
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const HomeScreen()),
+            );
+          }
+        }
+      });
+    }
   }
 }
